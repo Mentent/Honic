@@ -1,0 +1,43 @@
+# Handwirteen build.ninja file.
+# 手写不易。
+
+# 变量 Variables
+CC = gcc
+ASM = nasm
+LD = ld
+
+C_FLAGS = -c -Wall -m32 -ggdb -gstabs+ -nostdinc -fno-builtin -fno-stack-protector -I../include
+LD_FLAGS = -T../link.ld -m i386pe -nostdlib
+ASM_FLAGS = -f win32
+
+# Rules
+rule cc
+    command = $CC $C_FLAGS $in -o $out
+    description = Compiling C sources
+rule asm
+    command = $ASM $ASM_FLAGS $in -o $out
+    description = Compiling assembly sources
+rule link
+    command = $LD $LD_FLAGS $in -o $out
+    description = Linking all object files to kernel (i386pe)
+rule convert
+    command = objcopy -I pe-i386 -O elf32-i386 $in $out
+    description = Convert kernel file to elf32
+rule qemu
+    command = qemu-system-i386 -kernel kernel
+
+# Bootloader
+build ./out/boot.o: asm ../boot.asm
+# C sources
+build ./out/lib/common.o: cc ../lib/common.c
+build ./out/lib/kprint.o: cc ../lib/kprint.c
+build ./out/kernel.o: cc ../kernel.c
+# Output kernel in i386pe format. Then convert it to elf32 to run in Qemu  
+# 首先输出 i386pe 格式，为了在 qemu 中运行，需要转换为 elf32 格式
+build kernel_pe: link ./out/lib/common.o ./out/lib/kprint.o ./out/kernel.o ./out/boot.o
+build kernel: convert kernel_pe
+build all: phony kernel
+
+default all 
+# Please don't delete the next empty line!
+# 请勿删除空行！
