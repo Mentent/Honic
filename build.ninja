@@ -6,8 +6,8 @@ CC = gcc
 ASM = nasm
 LD = ld
 
-C_FLAGS = -c -Wall -m32 -ggdb -gstabs+ -nostdinc -fno-builtin -fno-stack-protector -I../include
-LD_FLAGS = -T../link.ld -m i386pe -nostdlib
+C_FLAGS = -c -Wall -m32 -ggdb -gstabs+ -nostdinc -fno-builtin -fno-stack-protector -I./include
+LD_FLAGS = -T./link.ld -m i386pe -nostdlib
 ASM_FLAGS = -f win32
 
 # Rules
@@ -27,14 +27,13 @@ rule qemu
     command = qemu-system-i386 -kernel kernel
 
 # Bootloader
-build ./out/boot.o: asm ../boot.asm
+build ./out/boot.o: asm ./boot.asm
 # C sources
-build ./out/lib/common.o: cc ../lib/common.c
-build ./out/lib/kprint.o: cc ../lib/kprint.c
-build ./out/kernel.o: cc ../kernel.c
-# Output kernel in i386pe format. Then convert it to elf32 to run in Qemu  
+build ./out/lib/kprint.o: cc ./lib/kprint.c
+build ./out/kernel.o: cc ./kernel.c
+# Output kernel in i386pe format. Then convert it to elf32 to run in Qemu.
 # 首先输出 i386pe 格式，为了在 qemu 中运行，需要转换为 elf32 格式
-build kernel_pe: link ./out/lib/common.o ./out/lib/kprint.o ./out/kernel.o ./out/boot.o
+build kernel_pe: link ./out/lib/kprint.o ./out/kernel.o ./out/boot.o
 build kernel: convert kernel_pe
 build all: phony kernel
 

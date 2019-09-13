@@ -94,25 +94,3 @@ void print_str(const char* str)
 		print_char(*str++);
 	}
 }
-
-/**
- * 打印十进制数
- */
-void print_dec(int num)
-{
-	char str[12] =
-	{ '\0' };
-	kitoa(num, str, 10);
-	print_str(str);
-}
-
-/**
- * 打印十六进制数
- */
-void print_hex(int num)
-{
-	char str[14] =
-	{ '0', 'x', '\0' };
-	kitoa(num, &(str[2]), 16);
-	print_str(str);
-}
